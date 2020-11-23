@@ -1,12 +1,17 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
 	"time"
 )
+
+var file = ""
+
+var reload = true
 
 func build() {
 
@@ -34,10 +39,16 @@ func main() {
 
 	go build()
 
-	port := ":5000"
-	fmt.Println("Runnig Server at port:", port)
+	port := flag.String("p", ":5000", "Listening Port")
+
+	flag.Parse()
+
+	// port := ":5000"
 
 	http.Handle("/", http.FileServer(http.Dir("./dist")))
 
-	http.ListenAndServe(port, nil)
+	fmt.Println("Runnig Server at port:", *port)
+
+	http.ListenAndServe(*port, nil)
+
 }
