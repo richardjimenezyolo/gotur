@@ -3,30 +3,41 @@ package main
 import (
 	"fmt"
 	"net/http"
-	// "os/exec"
+	"os"
+	"os/exec"
+	"time"
 )
 
-// func build() {
+func build() {
 
-// 	cmd := exec.Command("./src/build.sh")
+	os.Setenv("GOOS", "js")
+	os.Setenv("GOARCH", "wasm")
 
-// 	err := cmd.Run()
+	cmd := exec.Command("go", "build", "-o", "../dist/main.wasm")
 
-// 	if err != nil {
-// 		panic("Command can not be executed")
-// 	} else {
-// 		fmt.Println("Build successful")
-// 	}
-// }
+	cmd.Dir = "src"
+
+	err := cmd.Run()
+
+	if err != nil {
+		panic("Command can not be executed")
+	} else {
+		fmt.Println("Build successful")
+
+		time.Sleep(500 * time.Millisecond)
+
+		build()
+	}
+}
 
 func main() {
 
-	// build()
+	go build()
 
 	port := ":5000"
 	fmt.Println("Runnig Server at port:", port)
 
-	http.Handle("/", http.FileServer(http.Dir(".")))
+	http.Handle("/", http.FileServer(http.Dir("./dist")))
 
 	http.ListenAndServe(port, nil)
 }
